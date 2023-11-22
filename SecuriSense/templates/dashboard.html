@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SecuriSense - Dashboard</title>
+    <!-- Add any necessary CSS styles here -->
+    <style>
+        /* Your CSS styles for header, nav, footer go here */
+        /* For example: */
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        nav {
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+           /* Styling for the navigation links */
+        nav ul li a {
+            text-decoration: none; /* Remove default underline */
+            color: black; /* Set default color for links */
+            padding: 10px 15px;
+            border-radius: 20px;
+        }
+
+        nav ul li a:hover {
+            background-color: black; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
+
+        /* Apply specific style for the selected link */
+        nav ul li.active a {
+            background-color: black; /* Background color for selected link */
+            color: white; /* Text color for selected link */
+        }
+         div {
+            text-align: center; /* Center align the content */
+            margin-top: 50px; /* Add margin for spacing from top */
+        }
+
+        h1 {
+            color: blue; /* Set the color of the heading */
+        }
+    </style>
+</head>
+<body>
+   {% include 'layout.html' %}
+    <div>
+        <h1>Welcome to SecuriSense Dashboard</h1>
+    </div>
+
+</body>
+</html>
