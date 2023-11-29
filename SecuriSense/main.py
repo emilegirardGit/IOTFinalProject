@@ -5,6 +5,7 @@ import flask
 import dbManager
 import os
 import threading
+import requests
 from dbManager import *
 from flask import request, jsonify, render_template, redirect, g
 
@@ -54,6 +55,17 @@ def logout():
     return redirect('/login')
 
 
+@app.route('/admin', methods=['GET'])
+def admin():
+    global user_is_logged_in
+    # Check if the user is logged in (You might use session management or authentication)
+    # For simplicity, let's assume the user is logged in by checking a boolean variable
+    # Replace this with your actual authentication logic
+    if user_is_logged_in:
+        return render_template('admin.html')
+    else:
+        # Redirect to login if the user is not logged in
+        return redirect('/login')
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     global user_is_logged_in
@@ -159,23 +171,9 @@ def upload_data():
     return jsonify({'message': 'JSON data received and processed!'}), 200
 
 
-@app.route('/offlineUpload', methods=['POST'])
-def post_offline_upload_data():
-    data = request.get_json()
-
-    if not data:
-        for value in data:
-            date = value['date']
-            location = value['location']
-            image = value['image']
-
-            alert = (location, image, date)
-            dbManager.create_alert(alert)
-        # Send a response
-        return jsonify({'message': 'offline data has been received and processed!'}), 200
-    print("Offline data was empty")
-
-
+@app.route('/connectionCheck', methods=['GET'])
+def connectionCheck():
+    return 'Connection OK', 200
 @app.route('/uploadImageTest', methods=['POST'])
 def upload_Image_Test():
     data = request.get_json()
@@ -186,6 +184,43 @@ def upload_Image_Test():
 
     # Send a response
     return jsonify({'message': 'Image received!'}), 200
+
+# @app.route('/status', methods=['GET'])
+# def status():
+#     try:
+#         response = requests.get('http://10.0.0.134:5001/status')  # Replace with your Raspberry Pi's IP and port
+#         if response.status_code == 200:
+#             data = response.json()
+#             status = data.get('status')
+#
+#             if status == 'running':
+#                 return jsonify({'status': 'running'}), 200
+#             else:
+#                 return jsonify({'status': 'stopped'}), 200
+#         else:
+#             return jsonify({'status': 'unreachable'}), 200
+#
+#     except requests.RequestException as e:
+#         print("Error:", e)
+#         return jsonify({'status': 'unreachable'}), 200
+
+@app.route('/start_program', methods=['POST'])
+def start_program():
+    # Send a start command to Raspberry Pi
+    response = requests.post('http://10.0.0.134:5001/start_command')
+    if response.status_code == 200:
+        return 'Python program started on Raspberry Pi'
+    else:
+        return 'Failed to start Python program on Raspberry Pi'
+
+@app.route('/stop_program', methods=['POST'])
+def stop_program():
+    # Send a stop command to Raspberry Pi
+    response = requests.post('http://10.0.0.134:5001/stop_command')
+    if response.status_code == 200:
+        return 'Python program stopped on Raspberry Pi'
+    else:
+        return 'Failed to stop Python program on Raspberry Pi'
 
 
 @app.before_request

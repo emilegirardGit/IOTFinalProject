@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        /* Define button styles */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh; /* Adjust height as needed */
+        }
+
+        button {
+            padding: 20px;
+            font-size: 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            background-color: blue;
+            color: white;
+        }
+
+        .stop-btn {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    {% include 'layout.html' %}
+    <div class="button-container">
+        <button id="toggle-btn" class="start-btn" onclick="toggleProgram()">Start Program</button>
+    </div>
+
+    <script>
+        function toggleProgram() {
+            var button = document.getElementById('toggle-btn');
+            if (button.classList.contains('start-btn')) {
+                // Send a start command
+                fetch('/start_program', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            button.innerHTML = 'Stop Program';
+                            button.classList.remove('start-btn');
+                            button.classList.add('stop-btn');
+                        } else {
+                            console.error('Failed to start the program');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to start the program:', error);
+                    });
+            } else {
+                // Send a stop command
+                fetch('/stop_program', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            button.innerHTML = 'Start Program';
+                            button.classList.remove('stop-btn');
+                            button.classList.add('start-btn');
+                        } else {
+                            console.error('Failed to stop the program');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to stop the program:', error);
+                    });
+            }
+        }
+
+        // Fetch status and update button on page load
+        window.onload = function() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    var button = document.getElementById('toggle-btn');
+                    if (data.status === 'running') {
+                        button.innerHTML = 'Stop Program';
+                        button.classList.remove('start-btn');
+                        button.classList.add('stop-btn');
+                    } else if (data.status === 'stopped') {
+                        button.innerHTML = 'Start Program';
+                        button.classList.remove('stop-btn');
+                        button.classList.add('start-btn');
+                    } else {
+                        var container = document.querySelector('.button-container');
+                        container.innerHTML = '<p>Raspberry Pi is offline</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to fetch status:', error);
+                });
+        };
+    </script>
+</body>
+</html>
