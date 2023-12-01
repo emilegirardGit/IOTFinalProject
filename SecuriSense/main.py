@@ -58,13 +58,11 @@ def logout():
 @app.route('/admin', methods=['GET'])
 def admin():
     global user_is_logged_in
-    # Check if the user is logged in (You might use session management or authentication)
-    # For simplicity, let's assume the user is logged in by checking a boolean variable
-    # Replace this with your actual authentication logic
+    # Check if the user is logged in
     if user_is_logged_in:
-        return render_template('admin.html')
+        alerts = dbManager.getAlertsInReverse(g.conn, g.cur)
+        return render_template('admin.html', alerts=alerts)
     else:
-        # Redirect to login if the user is not logged in
         return redirect('/login')
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -117,39 +115,6 @@ def graph():
         header="Temperature Over Time",
         description="Graph shows temperature changes over time."
     )
-
-
-# Part 2 Temperature
-# Get request that display the graph of the temperature
-@app.route('/sample', methods=['GET'])
-def sample():
-    return render_template(
-        "line_graph_example.html",
-        data=temperature_data,
-        labels=labels,
-        header="Temperature Over Time",
-        description="Graph shows temperature changes over time."
-    )
-
-
-# Post request getting the data from the raspberrypi
-@app.route('/update-temperature', methods=['POST'])
-def update_temperature():
-    global index
-    global labels
-    global temperature_data
-    data = request.json
-    temperature_data = []
-    index = 1
-    labels = []
-    # For each value in the json file is appended to the temperature_data array
-    for value in data:
-        temperature_data.append(value['temperature'])
-        labels.append(index)
-        index = index + 1
-
-    # Return the function home to update the value on the website
-    return sample()
 
 
 @app.route('/uploadAlert', methods=['POST'])

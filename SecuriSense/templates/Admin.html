@@ -9,7 +9,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 70vh; /* Adjust height as needed */
+            height: 20vh;
         }
 
         button {
@@ -29,12 +29,91 @@
             background-color: red;
             color: white;
         }
+
+
+
+        .table-container {
+            margin: 20px auto;
+            width: 80%;
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 10%;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #dddddd;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+        }
+
+        .overlay img {
+            max-width: 100%;
+            max-height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
     {% include 'layout.html' %}
     <div class="button-container">
         <button id="toggle-btn" class="start-btn" onclick="toggleProgram()">Start Program</button>
+    </div>
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Alert ID</th>
+                <th>Location</th>
+                <th>Datetime</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <tr>
+                <td>{{ alert[0] }}</td>  <!-- Alert ID -->
+                <td>{{ alert[1] }}</td>  <!-- Location -->
+                <td>{{ alert[3] }}</td>  <!-- Datetime -->
+                <td><img src="data:image/jpeg;base64,{{ alert[2] }}" alt="This alert has no image" width="150px" height="100px" onclick="openFullscreenImage('data:image/jpeg;base64,{{ alert[2] }}')"
+    /></td>  <!-- Image -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+     <div class="overlay" onclick="closeFullscreen()">
+        <img id="fullscreenImg" src="" alt="Fullscreen Image">
     </div>
 
     <script>
@@ -72,30 +151,44 @@
                     });
             }
         }
+  // Function to open image in fullscreen overlay
+        function openFullscreenImage(imgSrc) {
+            var overlay = document.querySelector('.overlay');
+            var fullscreenImg = document.getElementById('fullscreenImg');
 
-        // Fetch status and update button on page load
-        window.onload = function() {
-            fetch('/status')
-                .then(response => response.json())
-                .then(data => {
-                    var button = document.getElementById('toggle-btn');
-                    if (data.status === 'running') {
-                        button.innerHTML = 'Stop Program';
-                        button.classList.remove('start-btn');
-                        button.classList.add('stop-btn');
-                    } else if (data.status === 'stopped') {
-                        button.innerHTML = 'Start Program';
-                        button.classList.remove('stop-btn');
-                        button.classList.add('start-btn');
-                    } else {
-                        var container = document.querySelector('.button-container');
-                        container.innerHTML = '<p>Raspberry Pi is offline</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Failed to fetch status:', error);
-                });
-        };
+            fullscreenImg.src = imgSrc;
+            overlay.style.display = 'block';
+        }
+
+        // Function to close fullscreen overlay
+        function closeFullscreen() {
+            var overlay = document.querySelector('.overlay');
+            overlay.style.display = 'none';
+        }
+
+<!--        // Fetch status and update button on page load-->
+<!--        window.onload = function() {-->
+<!--            fetch('/status')-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    var button = document.getElementById('toggle-btn');-->
+<!--                    if (data.status === 'running') {-->
+<!--                        button.innerHTML = 'Stop Program';-->
+<!--                        button.classList.remove('start-btn');-->
+<!--                        button.classList.add('stop-btn');-->
+<!--                    } else if (data.status === 'stopped') {-->
+<!--                        button.innerHTML = 'Start Program';-->
+<!--                        button.classList.remove('stop-btn');-->
+<!--                        button.classList.add('start-btn');-->
+<!--                    } else {-->
+<!--                        var container = document.querySelector('.button-container');-->
+<!--                        container.innerHTML = '<p>Raspberry Pi is offline</p>';-->
+<!--                    }-->
+<!--                })-->
+<!--                .catch(error => {-->
+<!--                    console.error('Failed to fetch status:', error);-->
+<!--                });-->
+<!--        };-->
     </script>
 </body>
 </html>

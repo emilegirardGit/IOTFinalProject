@@ -27,6 +27,9 @@ def getAlerts(conn, cur):
     alerts = cur.execute("""SELECT * FROM alerts""")
     return alerts
 
+def getAlertsInReverse(conn,cur):
+    alerts = cur.execute("""SELECT * FROM alerts ORDER BY id DESC""")
+    return alerts
 
 def getUsers(conn, cur):
     users = cur.execute("""SELECT * FROM users""")

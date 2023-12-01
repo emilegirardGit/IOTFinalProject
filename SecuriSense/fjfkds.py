@@ -1,5 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+import cv2
+import base64
 import requests
 import json
 from datetime import datetime
@@ -18,12 +20,16 @@ pin = 5
 photoresistor_pin = 17
 buzzer_pin = 27
 isOnline = True
-wasOnlineBefore = True
+wasOnlineBefore = False
 GPIO.setup(laser_pin, GPIO.OUT)
 GPIO.setup(pin, GPIO.OUT)
 GPIO.setup(photoresistor_pin, GPIO.IN)
 GPIO.setup(buzzer_pin, GPIO.OUT)
-
+cap = cv2.VideoCapture(0)
+cameraIsWorking = True
+if not cap.isOpened():
+    print("Error: Could not open the webcam.")
+    cameraIsWorking = False
 
 # Function to get current location
 def get_current_location():
@@ -71,17 +77,11 @@ try:
 
         api_reachable = is_api_reachable()
         if api_reachable:
-            status = requests.get(connection_check_url)
-            if status.status_code == 200:
-                isOnline = True
-                if not wasOnlineBefore:
-                    upload_offline_data()
-                    wasOnlineBefore = True
-                print("We are online!")
-            else:
-                print("Server reachable but not properly responding")
-                isOnline = False
-                wasOnlineBefore = False
+            isOnline = True
+            print("We are online!")
+            if not wasOnlineBefore:
+                upload_offline_data()
+                wasOnlineBefore = True
         else:
             print("API is offline or unreachable")
             isOnline = False
@@ -91,11 +91,28 @@ try:
         print(f"Photoresistor value: {value}")
 
         if value == 0:
+
+
+
+
+            #turn buzzer on
             GPIO.output(buzzer_pin, GPIO.HIGH)
+            # Capture a frame from the webcam
+            if cameraIsWorking:
+                ret, frame = cap.read()
+                if not ret:
+                    print("Error: Failed to capture an image.")
+                    img_base64 = None
+                else:
+                    _, img_encoded = cv2.imencode('.jpg', frame)
+                    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+            else:
+                img_base64 = None
             current_location = get_current_location()
             data = {
                 'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'location': f"{current_location[0]}, {current_location[1]}"
+                'location': f"{current_location[0]}, {current_location[1]}",
+                'image': img_base64
             }
             try:
                 if isOnline:
@@ -126,4 +143,5 @@ except KeyboardInterrupt:  # Ctrl+C to exit the program
 
 finally:
     GPIO.cleanup()
+    cap.release()
     pass
