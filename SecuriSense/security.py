@@ -28,7 +28,6 @@ GPIO.setup(buzzer_pin, GPIO.OUT)
 cap = cv2.VideoCapture(0)
 cameraIsWorking = True
 if not cap.isOpened():
-    print("Error: Could not open the webcam.")
     cameraIsWorking = False
 
 # Function to get current location
@@ -104,10 +103,12 @@ try:
                     print("Error: Failed to capture an image.")
                     img_base64 = None
                 else:
+                    print("Picture of location taken")
                     _, img_encoded = cv2.imencode('.jpg', frame)
                     img_base64 = base64.b64encode(img_encoded).decode('utf-8')
             else:
                 img_base64 = None
+                print("Error: Camera is not working")
             current_location = get_current_location()
             data = {
                 'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

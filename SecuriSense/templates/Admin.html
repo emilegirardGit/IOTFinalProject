@@ -37,7 +37,7 @@
             width: 80%;
             height: 400px;
             overflow-y: scroll;
-            margin-bottom: 10%;
+            margin-bottom: 5%;
         }
 
         table {
@@ -81,12 +81,25 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        .delete-btn {
+        padding: 20px;
+        font-size: 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: red; /* Set button background color */
+        color: white; /* Set button text color */
+    }
     </style>
 </head>
 <body>
     {% include 'layout.html' %}
     <div class="button-container">
         <button id="toggle-btn" class="start-btn" onclick="toggleProgram()">Start Program</button>
+        <form method="get" action="/admin">
+            <button type="submit" >Refresh</button>
+        </form>
     </div>
     <div class="table-container">
     <table>
@@ -96,6 +109,10 @@
                 <th>Location</th>
                 <th>Datetime</th>
                 <th>Image</th>
+                <th><form method="get" action="/deleteAlerts">
+                        <button type="submit" class="delete-btn">Delete Alerts</button>
+                    </form>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -104,8 +121,10 @@
                 <td>{{ alert[0] }}</td>  <!-- Alert ID -->
                 <td>{{ alert[1] }}</td>  <!-- Location -->
                 <td>{{ alert[3] }}</td>  <!-- Datetime -->
-                <td><img src="data:image/jpeg;base64,{{ alert[2] }}" alt="This alert has no image" width="150px" height="100px" onclick="openFullscreenImage('data:image/jpeg;base64,{{ alert[2] }}')"
-    /></td>  <!-- Image -->
+                <td>
+                    <img src="data:image/jpeg;base64,{{ alert[2] }}" alt="This alert has no image" width="150px" height="100px" onclick="openFullscreenImage('data:image/jpeg;base64,{{ alert[2] }}')"/>
+                </td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>

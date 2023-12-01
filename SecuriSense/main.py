@@ -1,6 +1,5 @@
 import json
 import time
-from datetime import datetime
 import flask
 import dbManager
 import os
@@ -8,6 +7,8 @@ import threading
 import requests
 from dbManager import *
 from flask import request, jsonify, render_template, redirect, g
+from datetime import datetime
+from flask import render_template
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -77,16 +78,6 @@ def dashboard():
         return redirect('/login')
 
 
-# Part 1 Sales report
-# Get request showing the sales with hard coded values
-
-
-from datetime import datetime
-from flask import render_template
-
-
-# Your existing route definition remains the same
-
 @app.route('/graph', methods=['GET'])
 def graph():
     # Define Plot Data
@@ -139,16 +130,13 @@ def upload_data():
 @app.route('/connectionCheck', methods=['GET'])
 def connectionCheck():
     return 'Connection OK', 200
-@app.route('/uploadImageTest', methods=['POST'])
-def upload_Image_Test():
-    data = request.get_json()
-    image = data.get('image')
-
-    with open('received.png', 'wb') as img_file:
-        img_file.write(image.decode('base64'))
-
-    # Send a response
-    return jsonify({'message': 'Image received!'}), 200
+@app.route('/deleteAlerts', methods=['GET'])
+def deleteAlerts():
+    if user_is_logged_in:
+        dbManager.deleteAllAlerts(g.conn,g.cur)
+        return redirect("/admin")
+    else:
+        return redirect("/login")
 
 # @app.route('/status', methods=['GET'])
 # def status():

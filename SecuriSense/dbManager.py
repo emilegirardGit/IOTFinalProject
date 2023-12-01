@@ -28,9 +28,15 @@ def getAlerts(conn, cur):
     return alerts
 
 def getAlertsInReverse(conn,cur):
-    alerts = cur.execute("""SELECT * FROM alerts ORDER BY id DESC""")
+    alerts = cur.execute("""SELECT * FROM alerts ORDER BY time DESC""")
     return alerts
 
+def deleteAllAlerts(conn,cur):
+    cur.execute("""DELETE FROM alerts""")
+    deleted_rows = cur.rowcount
+    conn.commit()
+    print(f"{deleted_rows} alerts have been deleted.")
+    return f"{deleted_rows} alerts have been deleted."
 def getUsers(conn, cur):
     users = cur.execute("""SELECT * FROM users""")
     return users
