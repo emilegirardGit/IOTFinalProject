@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import json
 import time
 from datetime import datetime
@@ -34,17 +36,30 @@ def login_user():
     global user_is_logged_in
     username = request.form['username']
     password = request.form['password']
-
+    user = dbManager.getUsers(username, g.conn, g.cur)
     # Perform authentication here (e.g., check username and password against a database)
 
-    # For simplicity, let's assume a hardcoded username and password for demonstration purposes
-    if username == 'user' and password == 'pwd':
+    if verify_password(password, user[6], user[2]):
         # Successful login, redirect to a different page or perform actions
         user_is_logged_in = True
         return redirect("/dashboard")
     else:
         # Invalid credentials, redirect back to the login page with a message
         return render_template('log_in_template.html', message='Invalid credentials. Please try again.')
+
+@app.route('/register', methods=['GET'])
+def register():
+    return render_template('register_template.html')
+
+@app.route('/register', methods=['POST'])
+def register_user():
+    if not dbManager.getUsers(request.form['username'], g.conn, g.cur):
+        salt, hashedPassword = hash_password(request.form['password'])
+        user = (request.form['username'], hashedPassword, request.form['email'], request.form['address'], request.form['phone'], salt)
+        dbManager.create_user(user, g.conn, g.cur)
+        return redirect("/login")
+    else:
+        return render_template('register_template.html', message='Username is already taken')
 
 
 @app.route('/logout', methods=['GET'])
@@ -170,7 +185,7 @@ def post_offline_upload_data():
             image = value['image']
 
             alert = (location, image, date)
-            dbManager.create_alert(alert)
+            dbManager.create_alert(alert, g.conn, g.cur)
         # Send a response
         return jsonify({'message': 'offline data has been received and processed!'}), 200
     print("Offline data was empty")
@@ -214,6 +229,27 @@ def delete_alerts_file():
         if os.path.exists(alerts_file_path):
             os.remove(alerts_file_path)
         time.sleep(86400)  # Sleep for a day before deletion
+
+def hash_password(password):
+    # Generate a random salt
+    salt = os.urandom(16)
+
+    # Combine the password and the salt, and hash them
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    print(hashed_password)
+    print(salt)
+    # Return the salt and the hashed password
+    return salt, hashed_password
+
+
+def verify_password(input_password, stored_salt, stored_hash):
+    # Hash the input password with the stored salt
+    new_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), stored_salt, 100000)
+    print(new_hash)
+    print(stored_hash)
+    print(stored_salt)
+    return new_hash == stored_hash
+
 
 
 # Start the thread for file deletion

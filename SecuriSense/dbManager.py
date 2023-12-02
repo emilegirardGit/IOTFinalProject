@@ -6,9 +6,9 @@ conn = sqlite3.connect(db_file)
 cur = conn.cursor()
 
 
-def create_user(user):
-    sql = '''INSERT INTO users (username, password, email, address, phone_number)
-             VALUES(?,?,?,?,?)'''
+def create_user(user, conn, cur):
+    sql = '''INSERT INTO users (username, password, email, address, phone_number, salt)
+             VALUES(?,?,?,?,?,?)'''
     cur.execute(sql, user)
     conn.commit()
     return cur.lastrowid
@@ -28,6 +28,9 @@ def getAlerts(conn, cur):
     return alerts
 
 
-def getUsers(conn, cur):
-    users = cur.execute("""SELECT * FROM users""")
-    return users
+def getUsers(username, conn, cur):
+    query = "SELECT * FROM users WHERE username = ?"
+    cur.execute(query, (username,))
+    return cur.fetchone()
+
+

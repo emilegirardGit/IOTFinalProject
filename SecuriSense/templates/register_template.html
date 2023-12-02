@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Register</title>
 
     <style>
-        .login-form {
+        .register-form {
             max-width: 300px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        .login-form input[type="text"],
-        .login-form input[type="password"] {
+        .register-form input[type="text"],
+        .register-form input[type="password"],
+        .register-form input[type="email"],
+        .register-form input[type="tel"] {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
@@ -22,8 +24,7 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .login-form input[type="submit"],
-        .login-form button {
+        .register-form input[type="submit"] {
             width: 100%;
             background-color: #4CAF50;
             color: white;
@@ -33,28 +34,34 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        .login-form input[type="submit"]:hover,
-        .login-form button:hover {
+        .register-form input[type="submit"]:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="login-form">
-        <h2>Login</h2>
+    <div class="register-form">
+        <h2>Register</h2>
         {% if message %}
             <p style="color: red;">{{ message }}</p>
         {% endif %}
-        <form method="post" action="/login">
+        <form method="post" action="/register">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
 
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
 
-            <input type="submit" value="Login">
-            <label for="register">Not A Member?</label>
-            <button onclick="location.href='/register'" id="register" type="button">Register</button>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" required>
+
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <input type="submit" value="Register">
         </form>
     </div>
 </body>
