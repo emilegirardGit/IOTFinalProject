@@ -18,11 +18,12 @@ if __name__ == '__main__':
     db_file = "securiSense.db"
     userTableSQL = ("CREATE TABLE IF NOT EXISTS users \
                     (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                     username text NOT NULL, \
-                     password text NOT NULL, \
-                     email text NOT NULL, \
-                     address text, \
-                     phone_number text);")
+                     username TEXT NOT NULL, \
+                     password BLOB NOT NULL, \
+                     email TEXT NOT NULL, \
+                     address TEXT, \
+                     phone_number TEXT, \
+                     salt BLOB);")
 
     alertTableSQL = ("CREATE TABLE IF NOT EXISTS alerts ( \
                         id integer PRIMARY KEY AUTOINCREMENT NOT NULL, \

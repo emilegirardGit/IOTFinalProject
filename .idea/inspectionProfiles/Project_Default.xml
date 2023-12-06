@@ -5,7 +5,17 @@
       <option name="ignoredErrors">
         <list>
           <option value="N802" />
+<<<<<<< HEAD
           <option value="N806" />
+=======
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="float.randint" />
+>>>>>>> f008e61f0a2e602123f4914956464b65773d4797
         </list>
       </option>
     </inspection_tool>

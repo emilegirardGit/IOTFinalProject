@@ -46,7 +46,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../app/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../app/src/main/res" type="java-resource" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 33, extension level 3 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: androidx.databinding:viewbinding:8.1.2@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.core:core-ktx:1.9.0@aar" level="project" />
