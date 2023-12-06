@@ -7,8 +7,6 @@ import json
 from datetime import datetime
 import socket
 
-
-
 # Constants
 upload_url = 'http://10.0.0.119:5000/uploadAlert'
 connection_check_url = 'http://10.0.0.119:5000/connectionCheck'
@@ -30,6 +28,7 @@ cameraIsWorking = True
 if not cap.isOpened():
     cameraIsWorking = False
 
+
 # Function to get current location
 def get_current_location():
     if isOnline:
@@ -42,6 +41,8 @@ def get_current_location():
             return 0, 0
     else:
         return 0, 0
+
+
 def is_api_reachable():
     try:
         socket.create_connection(("10.0.0.119", 5000), timeout=2)  # Adjust timeout as needed
@@ -49,6 +50,7 @@ def is_api_reachable():
     except OSError:
         pass
     return False
+
 
 def upload_offline_data():
     try:
@@ -67,55 +69,63 @@ def upload_offline_data():
     except FileNotFoundError:
         print("No offline data found.")
 
+
 try:
     GPIO.output(laser_pin, GPIO.HIGH)
     GPIO.output(pin, GPIO.HIGH)
+    api_reachable = is_api_reachable()
 
+    if api_reachable:
+        isOnline = True
+        print("We are online!")
+        if not wasOnlineBefore:
+            upload_offline_data()
+            wasOnlineBefore = True
+    else:
+        print("API is offline or unreachable")
+        isOnline = False
+        wasOnlineBefore = False
     # Loop to check the photoresistor and trigger actions
     while True:
-
-        api_reachable = is_api_reachable()
-        if api_reachable:
-            isOnline = True
-            print("We are online!")
-            if not wasOnlineBefore:
-                upload_offline_data()
-                wasOnlineBefore = True
-        else:
-            print("API is offline or unreachable")
-            isOnline = False
-            wasOnlineBefore = False
-
         value = GPIO.input(photoresistor_pin)
         print(f"Photoresistor value: {value}")
-
         if value == 0:
-
-
-
-
-            #turn buzzer on
             GPIO.output(buzzer_pin, GPIO.HIGH)
-            # Capture a frame from the webcam
-            if cameraIsWorking:
-                ret, frame = cap.read()
-                if not ret:
-                    print("Error: Failed to capture an image.")
-                    img_base64 = None
-                else:
-                    print("Picture of location taken")
-                    _, img_encoded = cv2.imencode('.jpg', frame)
-                    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
-            else:
-                img_base64 = None
-                print("Error: Camera is not working")
-            current_location = get_current_location()
-            data = {
-                'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'location': f"{current_location[0]}, {current_location[1]}",
-                'image': img_base64
-            }
+            print(f"Something has been detected!")
             try:
+                api_reachable = is_api_reachable()
+                if api_reachable:
+                    isOnline = True
+                    print("We are online!")
+                    if not wasOnlineBefore:
+                        upload_offline_data()
+                        wasOnlineBefore = True
+                else:
+                    print("API is offline or unreachable")
+                    isOnline = False
+                    wasOnlineBefore = False
+
+                # Capture a frame from the webcam
+                if cameraIsWorking:
+                    ret, frame = cap.read()
+                    if not ret:
+                        print("Error: Failed to capture an image.")
+                        img_base64 = None
+                    else:
+                        print("Picture of location taken")
+                        _, img_encoded = cv2.imencode('.jpg', frame)
+                        img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+                else:
+                    img_base64 = None
+                    print("Error: Camera is not working")
+
+                current_location = get_current_location()
+                data = {
+                    'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'location': f"{current_location[0]}, {current_location[1]}",
+                    'image': img_base64
+                }
+
                 if isOnline:
                     response = requests.post(upload_url, json=data)
                     if response.status_code == 200:
@@ -130,14 +140,15 @@ try:
                     with open(log_file_path, 'a') as fh:
                         json.dump(data, fh)  # Inserting JSON OBJECT into File
                         fh.write('\n')
+
+                time.sleep(0.5)
+                GPIO.output(buzzer_pin, GPIO.LOW)
             except requests.RequestException as e:
                 print("Error:", e)
-
-            time.sleep(0.5)
-            GPIO.output(buzzer_pin, GPIO.LOW)
         else:
             GPIO.output(buzzer_pin, GPIO.LOW)
-        time.sleep(1)
+
+        time.sleep(0.2)
 
 except KeyboardInterrupt:  # Ctrl+C to exit the program
     pass
